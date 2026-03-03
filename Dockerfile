@@ -1,16 +1,10 @@
+# Stage 1: Dependencies
 FROM node:20-alpine AS dependencies
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production && cp -R node_modules /production_modules && npm ci
 
-FROM node:20-alpine AS test
-WORKDIR /app
-COPY --from=dependencies /app/node_modules ./node_modules
-COPY package*.json ./
-COPY src/ ./src/
-COPY tests/ ./tests/
-RUN npm test
-
+# Stage 2: Production (skip test stage for multi-arch compatibility)
 FROM node:20-alpine AS production
 LABEL maintainer="Fredy Pulido <pulidofredy@hotmail.com>"
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup

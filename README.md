@@ -40,6 +40,8 @@ docker run -p 3000:3000 cicd-demo-app
 
 ## Equipo
 **INSOFTCOL S.A.** — Fredy Orlando Pulido Quintero - Myriam Andrea Martinez Fontecha
+## Notas de compatibilidad (Mac/kind)
+Para evistar fallso en el pipeline CD en Mac con kind/Docker Desktop, se desactivan las attestations
 
 ## Pipeline CI Status
 ![CI](https://github.com/insoftcol/cicd-demo-app/actions/workflows/ci.yml/badge.svg)

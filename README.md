@@ -40,6 +40,7 @@ docker run -p 3000:3000 cicd-demo-app
 
 ## Equipo
 **INSOFTCOL S.A.** — Fredy Orlando Pulido Quintero - Myriam Andrea Martinez Fontecha
+## se inactiva attestations para compatibilidad Mac pipeline CD con kind docker 
 
 ## Pipeline CI Status
 ![CI](https://github.com/insoftcol/cicd-demo-app/actions/workflows/ci.yml/badge.svg)

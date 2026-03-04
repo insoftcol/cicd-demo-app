@@ -4,19 +4,26 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    version: process.env.APP_VERSION || '1.0.0'
+app.get('/', (req, res) => {
+  res.json({
+    message: 'INSOFTCOL S.A. - Laboratorio flujo CI/CD completo',
+    environment: process.env.NODE_ENV || 'development',
+    version: '2.0.0',
+    pipeline: {
+      ci: 'GitHub Actions',
+      cd: 'Jenkins',
+      security: ['SonarCloud', 'Snyk'],
+      monitoring: ['Prometheus', 'Grafana'],
+      orchestration: 'Kubernetes (Kind)'
+    }
   });
 });
 
-app.get('/', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({
-    message: 'CI/CD Demo Application - INSOFTCOL DevOps Pipeline',
-    environment: process.env.NODE_ENV || 'development',
-    version: process.env.APP_VERSION || '1.0.0'
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    version: '2.0.0'
   });
 });
 
@@ -24,27 +31,38 @@ app.get('/api/info', (req, res) => {
   res.json({
     app: 'cicd-demo-app',
     company: 'INSOFTCOL S.A.',
-    description: 'Aplicación de demostración para pipelines CI/CD',
+    description: 'Laboratorio flujo CI/CD completo - Maestría Arquitectura de Software',
+    version: '2.0.0',
     stack: {
       runtime: 'Node.js',
       framework: 'Express',
-      containerization: 'Docker',
-      orchestration: 'Kubernetes',
+      containerization: 'Docker (Multi-Arch)',
+      orchestration: 'Kubernetes (Kind)',
       ci: 'GitHub Actions',
-      cd: 'Jenkins'
+      cd: 'Jenkins',
+      security: {
+        sast: 'SonarCloud',
+        dependencies: 'Snyk'
+      },
+      monitoring: {
+        metrics: 'Prometheus',
+        dashboards: 'Grafana'
+      }
     }
   });
 });
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Internal Server Error' });
+app.use((req, res, next) => {
+  res.status(404).json({
+    error: 'Not Found',
+    path: req.path
+  });
 });
 
-if (process.env.NODE_ENV !== 'test') {
+module.exports = app;
+
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 }
-
-module.exports = app;

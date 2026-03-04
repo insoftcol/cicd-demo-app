@@ -20,9 +20,10 @@ pipeline {
                 checkout scm
                 script {
                     env.GIT_COMMIT_SHORT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    env.GIT_COMMIT_FULL = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
                     env.GIT_AUTHOR = sh(script: 'git log -1 --pretty=%an', returnStdout: true).trim()
                 }
-                echo "Commit: ${env.GIT_COMMIT_SHORT} | Author: ${env.GIT_AUTHOR} | Branch: ${env.GIT_BRANCH}"
+                echo "Commit: ${env.GIT_COMMIT_SHORT} | Author: ${env.GIT_AUTHOR}"
             }
         }
 
@@ -31,7 +32,6 @@ pipeline {
                 sh '''
                     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - 2>/dev/null || true
                     apt-get install -y nodejs 2>/dev/null || true
-                    node --version || echo "Node.js not available"
                     npm ci || echo "npm ci skipped"
                 '''
             }
@@ -55,8 +55,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh """
-                    echo "Deploying ${DOCKER_IMAGE}:latest to production..."
-                    kubectl set image deployment/${APP_NAME} ${APP_NAME}=${DOCKER_IMAGE}:latest -n production
+                    echo "Deploying ${DOCKER_IMAGE}:${GIT_COMMIT_FULL} to production..."
+                    kubectl set image deployment/${APP_NAME} ${APP_NAME}=${DOCKER_IMAGE}:${GIT_COMMIT_FULL} -n production
                     kubectl annotate deployment/${APP_NAME} kubernetes.io/change-cause="Jenkins Build #${BUILD_NUMBER} - Commit ${GIT_COMMIT_SHORT}" -n production --overwrite
                 """
             }
@@ -69,8 +69,9 @@ pipeline {
                     kubectl rollout status deployment/${APP_NAME} -n production --timeout=120s
                     echo "=== Pods Status ==="
                     kubectl get pods -n production -l app=${APP_NAME} -o wide
-                    echo "=== Deployment Details ==="
-                    kubectl describe deployment/${APP_NAME} -n production | head -30
+                    echo "=== Current Image ==="
+                    kubectl get deployment ${APP_NAME} -n production -o jsonpath='{.spec.template.spec.containers[0].image}'
+                    echo ""
                 """
             }
         }
@@ -83,7 +84,7 @@ pipeline {
             PIPELINE CD EXITOSO
             ========================================
             App:     ${APP_NAME}
-            Image:   ${DOCKER_IMAGE}:latest
+            Image:   ${DOCKER_IMAGE}:${GIT_COMMIT_FULL}
             Build:   #${BUILD_NUMBER}
             Author:  ${GIT_AUTHOR}
             Commit:  ${GIT_COMMIT_SHORT}

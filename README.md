@@ -45,3 +45,4 @@ Para evistar fallso en el pipeline CD en Mac con kind/Docker Desktop, se desacti
 
 ## Pipeline CI Status
 ![CI](https://github.com/insoftcol/cicd-demo-app/actions/workflows/ci.yml/badge.svg)
+# v2.0.0 build 1772596646
